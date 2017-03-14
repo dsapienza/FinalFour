@@ -1,3 +1,7 @@
+# create file
+# email results
+# verify all teams are in the winners table with a final score? 
+
 import MySQLdb
 import re
 import random
@@ -10,7 +14,7 @@ class FinalFour(object):
 	""" Create a potential Final Four outcome """
 
 	# Hard coded for now since they don't really change
-	regions = ['EAST','MIDWEST','SOUTH','WEST']
+	regions = ['SOUTH','EAST','WEST','MIDWEST']
 	#regions = self.get_region_info()
 
 	def __init__(self):
@@ -28,7 +32,7 @@ class FinalFour(object):
 	def _createlistwithnumbers(self):
 		""" Add the numerical representation for each team into a list """
 
-		seed_query = "SELECT school, seed FROM March_Madness.teams"
+		seed_query = "SELECT school, id FROM March_Madness.teams"
 		cursr = conn.cursor()
 		cursr.execute(seed_query)
 		teamswithseed = cursr.fetchall()
@@ -56,6 +60,7 @@ class FinalFour(object):
                 row_count = cursr.execute(winner_query)
                 if row_count > 0:
                         win = cursr.fetchone()
+                        #self.winner = self.finalfour[0]
                         self.winner = win[0]
 
         def _assignscore(self):
@@ -130,13 +135,13 @@ class FinalFour(object):
 	def ff_combo(self):
 		""" Write to list and DB a random final four combination """
 
-		self.finalfour = [self.east, self.midwest, self.south, self.west]
+		self.finalfour = [self.south, self.east, self.west, self.midwest]
 		self._assignwinner()
                 self.finalfour.append(self.winner)
 		self._assignscore()
 		self.finalfour.append(self.score)
-		self.finalfournums = [self.twsDict.get(self.east), self.twsDict.get(self.midwest), self.twsDict.get(self.south), self.twsDict.get(self.west), self.twsDict.get(self.winner, 'None'), self.score]
-		if self.finalfour not in allFinalFours:
+		self.finalfournums = [self.twsDict.get(self.south), self.twsDict.get(self.east), self.twsDict.get(self.west), self.twsDict.get(self.midwest), self.twsDict.get(self.winner, 'None'), self.score]
+		if self.finalfour not in (allFinalFours,excludedcombos):
 			allFinalFours.append(self.finalfour)
 			allFinalFoursNums.append(self.finalfournums)
 
@@ -146,8 +151,10 @@ class FinalFour(object):
 		teamlistoflists = []
 		
 		for r in self.regions:
+#			print r.upper()
 			teamlist = []
 			twv = self.get_teams_for_region(r)
+			# Hard code region needs to be updated
 			votesPerRegion = self.totalVotesPerRegion(r)
 
 			for t in twv:
@@ -166,7 +173,7 @@ class FinalFour(object):
 
 		with open(fn, "wb") as f:
 			writer = csv.writer(f)
-			writer.writerow(["EAST", "MIDWEST", "SOUTH", "WEST", "WINNER", "SCORE"])
+			writer.writerow(["SOUTH", "EAST", "WEST", "MIDWEST", "WINNER", "SCORE"])
 			writer.writerows(fflist)
 
 	def verify_winners(self):
@@ -175,7 +182,12 @@ class FinalFour(object):
 		teams = self.get_teams_with_votes()
 		print teams
 		for t in teams:
-			insertwinner = "INSERT INTO winners (Winner, Score, rank) VALUES ('%s','145',(SELECT SUM(votes) FROM ranks WHERE school = '%s'));" % (t[0],t[0])
+			check_query = "SELECT * FROM March_Madness.winners WHERE Winner = '%s'" % t[0]
 			cursr = conn.cursor()
-			cursr.execute(insertwinner)
-			conn.commit()
+			winnerexist = cursr.execute(check_query)
+			if winnerexist == 0:
+				insertwinner = "INSERT INTO winners (Winner, Score, rank) VALUES ('%s','145',(SELECT SUM(votes) FROM ranks WHERE school = '%s'));" % (t[0],t[0])
+				cursr = conn.cursor()
+				cursr.execute(insertwinner)
+				conn.commit()
+
