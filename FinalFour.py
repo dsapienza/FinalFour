@@ -1,8 +1,4 @@
-# create file
-# email results
-# verify all teams are in the winners table with a final score? 
-
-import MySQLdb
+import pymysql
 import re
 import random
 import csv
@@ -32,7 +28,7 @@ class FinalFour(object):
 	def _createlistwithnumbers(self):
 		""" Add the numerical representation for each team into a list """
 
-		seed_query = "SELECT school, id FROM March_Madness.teams"
+		seed_query = "SELECT school, number FROM March_Madness.teams"
 		cursr = conn.cursor()
 		cursr.execute(seed_query)
 		teamswithseed = cursr.fetchall()
@@ -55,7 +51,7 @@ class FinalFour(object):
 
                 search_string = '\',\''.join(self.finalfour)
 
-                winner_query = "SELECT Winner FROM winners WHERE Winner IN (\'%s\') ORDER BY rank LIMIT 1" % search_string
+                winner_query = "SELECT Winner FROM winners WHERE Winner IN (\'%s\') ORDER BY rank DESC LIMIT 1" % search_string
                 cursr = conn.cursor()
                 row_count = cursr.execute(winner_query)
                 if row_count > 0:
@@ -141,7 +137,7 @@ class FinalFour(object):
 		self._assignscore()
 		self.finalfour.append(self.score)
 		self.finalfournums = [self.twsDict.get(self.south), self.twsDict.get(self.east), self.twsDict.get(self.west), self.twsDict.get(self.midwest), self.twsDict.get(self.winner, 'None'), self.score]
-		if self.finalfour not in (allFinalFours,excludedcombos):
+		if self.finalfour not in (allFinalFours):
 			allFinalFours.append(self.finalfour)
 			allFinalFoursNums.append(self.finalfournums)
 
@@ -180,13 +176,12 @@ class FinalFour(object):
 		""" Ensure all teams are listed as possible winners """
 
 		teams = self.get_teams_with_votes()
-		print teams
 		for t in teams:
 			check_query = "SELECT * FROM March_Madness.winners WHERE Winner = '%s'" % t[0]
 			cursr = conn.cursor()
 			winnerexist = cursr.execute(check_query)
 			if winnerexist == 0:
-				insertwinner = "INSERT INTO winners (Winner, Score, rank) VALUES ('%s','145',(SELECT SUM(votes) FROM ranks WHERE school = '%s'));" % (t[0],t[0])
+				insertwinner = "INSERT INTO winners (Winner, Score, rank) VALUES ('%s','138',(SELECT SUM(votes) FROM ranks WHERE school = '%s'));" % (t[0],t[0])
 				cursr = conn.cursor()
 				cursr.execute(insertwinner)
 				conn.commit()

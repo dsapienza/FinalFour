@@ -1,4 +1,4 @@
-import MySQLdb
+import pymysql
 import subprocess as sp
 from Globals import *
 from march_madness import launch_menu

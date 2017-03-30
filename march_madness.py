@@ -1,9 +1,8 @@
 import sys
 import csv
 import subprocess as sp
-import MySQLdb
+import pymysql
 import MMPrintFuncs
-import MMGeneratePicks
 import FinalFour
 from Globals import *
 from sendfile import send_mail
@@ -67,7 +66,7 @@ def launch_menu(ff):
         print "Goodbye"
     else:
         print "Not a valid selection. Please try again."
-	launch_mene(ff)
+	launch_menu(ff)
 
 def verifyUser(ff):
     un = raw_input("\nPlease enter your name: ").upper()

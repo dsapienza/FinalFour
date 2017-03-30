@@ -8,18 +8,9 @@ from email.mime.application import MIMEApplication
 from email import Encoders
 
 def send_mail(send_from, send_to, subject, text, server="localhost"):
-#def send_mail( files=[]):
-#    assert type(send_to)==list
-#    assert type(files)==list
-
-#    send_from = 'dsapienza@gmail.com'
-#    send_to   = 'benson22482@yahoo.com'
-#    assert type(send_to)==list
-#    subject   = 'Testing file attachement'
-#    text      = 'Do you see me???'
-    files     = ['finalfour.csv']
+    #TO DO: update to accept list of files
+    files     = ['finalfourwithnumbers.csv']
     assert type(files)==list
-#    server    = 'localhost'
 
     msg = MIMEMultipart()
     msg['From'] = send_from
