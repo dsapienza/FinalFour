@@ -181,7 +181,7 @@ class FinalFour(object):
 			cursr = conn.cursor()
 			winnerexist = cursr.execute(check_query)
 			if winnerexist == 0:
-				insertwinner = "INSERT INTO winners (Winner, Score, rank) VALUES ('%s','138',(SELECT SUM(votes) FROM ranks WHERE school = '%s'));" % (t[0],t[0])
+				insertwinner = "INSERT INTO winners (Winner, Score, rank) VALUES ('%s','148',(SELECT SUM(votes) FROM ranks WHERE school = '%s'));" % (t[0],t[0])
 				cursr = conn.cursor()
 				cursr.execute(insertwinner)
 				conn.commit()
